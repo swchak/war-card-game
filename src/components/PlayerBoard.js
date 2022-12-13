@@ -5,6 +5,7 @@ import { Grid, Box, Paper, Button } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import cardDeckImage from "../images/CardsDeck200x200.png";
 import CardCountBadge from "./CardCountBadge";
+import { SharedContext } from "../context/SharedContext";
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -26,13 +27,19 @@ export default function PlayerBoard(props) {
     // readyToCompareProp,
     otherActiveCardCount,
     collectCardsProp,
-    onClearActiveCards,
-    clearActiveCards,
+    // onClearActiveCards,
+    // clearActiveCards,
   } = props;
 
   const [activeCards, setActiveCards] = React.useState(activeCardsProp);
   const [isSelectCardEnabled, setIsSelectCardEnabled] = React.useState(true);
   const [playerCardStack, setPlayerCardStack] = React.useState(cardStack);
+  const {
+    clearActiveCards1,
+    setClearActiveCards1,
+    clearActiveCards2,
+    setClearActiveCards2,
+  } = React.useContext(SharedContext);
 
   React.useEffect(() => {
     if (collectCardsProp.length > 0) {
@@ -42,7 +49,13 @@ export default function PlayerBoard(props) {
       setActiveCards((current) =>
         current.filter((card) => !idsHashSet.has(card.id))
       );
-      onClearActiveCards({ toClear: true });
+      if (player === "1") {
+        setClearActiveCards2(true);
+      } else {
+        setClearActiveCards1(true);
+      }
+
+      // onClearActiveCards({ toClear: true });
     }
   }, [collectCardsProp]);
 
@@ -54,7 +67,7 @@ export default function PlayerBoard(props) {
         current.filter((card) => !idsHashSet.has(card.id))
       );
     }
-  }, [clearActiveCards]);
+  }, [clearActiveCards1, clearActiveCards2]);
   // const [cardsSelected, setCardsSelected] = React.useState([]);
   // const [readyToCompare, setReadyToCompare] =
   // React.useState(readyToCompareProp);

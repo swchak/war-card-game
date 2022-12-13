@@ -3,6 +3,7 @@ import { Box, Grid, Paper, Alert } from "@mui/material";
 import PlayerBoard from "../components/PlayerBoard";
 import { styled } from "@mui/material/styles";
 import DeckOfCards from "../datamodels/DeckOfCards";
+import { SharedContextProvider } from "../context/SharedContext";
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -29,13 +30,13 @@ export default function Home() {
    *  */
   const [collectCards1, setCollectCards1] = React.useState([]);
   const [collectCards2, setCollectCards2] = React.useState([]);
-  const [clearActiveCards, setClearActiveCards] = React.useState(false);
+  // const [clearActiveCards, setClearActiveCards] = React.useState(false);
 
-  const handleClearActiveCards = ({ toClear }) => {
-    setClearActiveCards(toClear);
-    setCollectCards1([]);
-    setCollectCards2([]);
-  };
+  // const handleClearActiveCards = ({ toClear }) => {
+  //   // setClearActiveCards(toClear);
+  //   setCollectCards1([]);
+  //   setCollectCards2([]);
+  // };
 
   const handleSelectCards = ({ player, selectCards }) => {
     const idsHashSet = new Set();
@@ -134,55 +135,61 @@ export default function Home() {
     }
   }, [activeCards1, activeCards2]);
 
+  // React.useEffect(() => {
+  //   setClearActiveCards(true);
+  // }, [collectCards1, collectCards2]);
+
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <Grid container spacing={2} columns={16}>
-        <Grid item xs={8}>
-          <Item>
-            <PlayerBoard
-              player="1"
-              cardStack={cardStack1}
-              isInWar={isInWar}
-              activeCardsProp={activeCards1}
-              onSelectCards={handleSelectCards}
-              // onChangeReadyToCompare={handleReadyToCompare}
-              onPlayerLost={handlePlayerLost}
-              // readyToCompareProp={readyToCompare1}
-              otherActiveCardsProp={activeCards2}
-              collectCardsProp={collectCards1}
-              onClearActiveCards={handleClearActiveCards}
-              clearActiveCards={clearActiveCards}
-            />
-          </Item>
-        </Grid>
-        <Grid item xs={8}>
-          <Item>
-            <PlayerBoard
-              player="2"
-              cardStack={cardStack2}
-              isInWar={isInWar}
-              activeCardsProp={activeCards2}
-              onSelectCards={handleSelectCards}
-              // onChangeReadyToCompare={handleReadyToCompare}
-              onPlayerLost={handlePlayerLost}
-              // readyToCompareProp={readyToCompare2}
-              otherActiveCardsProp={activeCards1}
-              collectCardsProp={collectCards2}
-              onClearActiveCards={handleClearActiveCards}
-              clearActiveCards={clearActiveCards}
-            />
-          </Item>
-        </Grid>
-      </Grid>
-      {isInWar && (
+    <SharedContextProvider>
+      <Box sx={{ flexGrow: 1 }}>
         <Grid container spacing={2} columns={16}>
-          <Grid item xs={16}>
+          <Grid item xs={8}>
             <Item>
-              <Alert severity="info">{"War mode is on"}</Alert>
+              <PlayerBoard
+                player="1"
+                cardStack={cardStack1}
+                isInWar={isInWar}
+                activeCardsProp={activeCards1}
+                onSelectCards={handleSelectCards}
+                // onChangeReadyToCompare={handleReadyToCompare}
+                onPlayerLost={handlePlayerLost}
+                // readyToCompareProp={readyToCompare1}
+                otherActiveCardsProp={activeCards2}
+                collectCardsProp={collectCards1}
+                // onClearActiveCards={handleClearActiveCards}
+                // clearActiveCards={clearActiveCards}
+              />
+            </Item>
+          </Grid>
+          <Grid item xs={8}>
+            <Item>
+              <PlayerBoard
+                player="2"
+                cardStack={cardStack2}
+                isInWar={isInWar}
+                activeCardsProp={activeCards2}
+                onSelectCards={handleSelectCards}
+                // onChangeReadyToCompare={handleReadyToCompare}
+                onPlayerLost={handlePlayerLost}
+                // readyToCompareProp={readyToCompare2}
+                otherActiveCardsProp={activeCards1}
+                collectCardsProp={collectCards2}
+                // onClearActiveCards={handleClearActiveCards}
+                // clearActiveCards={clearActiveCards}
+              />
             </Item>
           </Grid>
         </Grid>
-      )}
-    </Box>
+        {isInWar && (
+          <Grid container spacing={2} columns={16}>
+            <Grid item xs={16}>
+              <Item>
+                <Alert severity="info">{"War mode is on"}</Alert>
+              </Item>
+            </Grid>
+          </Grid>
+        )}
+      </Box>
+    </SharedContextProvider>
   );
 }
