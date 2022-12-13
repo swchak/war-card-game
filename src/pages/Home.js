@@ -19,12 +19,23 @@ export default function Home() {
   const [cardStack1, setCardStack1] = React.useState(playerCardStacks[0]);
   const [cardStack2, setCardStack2] = React.useState(playerCardStacks[1]);
   const [isInWar, setIsInWar] = React.useState(false);
-  const [readyToCompare1, setReadyToCompare1] = React.useState(false);
-  const [readyToCompare2, setReadyToCompare2] = React.useState(false);
   const [activeCards1, setActiveCards1] = React.useState([]);
   const [activeCards2, setActiveCards2] = React.useState([]);
   const [player1Lost, setPlayer1Lost] = React.useState(false);
   const [player2Lost, setPlayer2Lost] = React.useState(false);
+  /**
+   * updates to active cards and player card stack state isnt getting passed to child components
+   * after comparing hence adding this workaround where I pass the cards that need to added to the bottom of the stack
+   *  */
+  const [collectCards1, setCollectCards1] = React.useState([]);
+  const [collectCards2, setCollectCards2] = React.useState([]);
+  const [clearActiveCards, setClearActiveCards] = React.useState(false);
+
+  const handleClearActiveCards = ({ toClear }) => {
+    setClearActiveCards(toClear);
+    setCollectCards1([]);
+    setCollectCards2([]);
+  };
 
   const handleSelectCards = ({ player, selectCards }) => {
     const idsHashSet = new Set();
@@ -43,14 +54,6 @@ export default function Home() {
     }
   };
 
-  const handleReadyToCompare = ({ player, readyToCompare: ready }) => {
-    if (player === "1") {
-      setReadyToCompare1(ready);
-    } else {
-      setReadyToCompare2(ready);
-    }
-  };
-
   const handlePlayerLost = ({ player }) => {
     if (player === "1") {
       setPlayer1Lost(true);
@@ -65,19 +68,26 @@ export default function Home() {
     }
   }, [player1Lost, player2Lost]);
 
-  React.useEffect(() => {
-    if (cardStack1.length === 0 || cardStack2.length === 0) {
-      // game ends, declare winner as one who has 52 card
-    }
-  }, [cardStack1, cardStack2]);
+  // React.useEffect(() => {
+  //   if (cardStack1.length === 0 || cardStack2.length === 0) {
+  //     // game ends, declare winner as one who has 52 card
+  //   }
+  // }, [cardStack1, cardStack2]);
 
   React.useEffect(() => {
-    if (readyToCompare1 && readyToCompare2) {
+    if (
+      activeCards1.length === activeCards2.length &&
+      activeCards1.length > 0
+    ) {
       const topCard1 = activeCards1[activeCards1.length - 1];
       const topCard2 = activeCards2[activeCards2.length - 1];
       if (topCard1.value === topCard2.value) {
         setIsInWar(true);
       } else {
+        /**
+         * Create an array newCardsToAdd containing copies of both sets of active
+         * cards in face down position
+         **/
         const tempArray1 = [...activeCards1];
         tempArray1.forEach((card) => {
           card.front = false;
@@ -88,30 +98,41 @@ export default function Home() {
           card.front = false;
         });
         const newCardsToAdd = [...tempArray1, ...tempArray2];
-        const idsHashSet = new Set();
-        const idsList = newCardsToAdd.map((card) => card.id);
-        idsList.forEach((cardId) => idsHashSet.add(cardId));
 
+        /**
+         * Add the new cards to the player stack of cards player whose last active card has higher value
+         */
         if (topCard1.value > topCard2.value) {
+          setCollectCards1((current) => [
+            ...collectCards1,
+            ...tempArray1,
+            ...tempArray2,
+          ]);
           setCardStack1((cardStack) => [...cardStack, ...newCardsToAdd]);
         } else {
+          setCollectCards2((current) => [
+            ...collectCards2,
+            ...tempArray1,
+            ...tempArray2,
+          ]);
           setCardStack2((cardStack) => [...cardStack, ...newCardsToAdd]);
         }
 
-        // clear active cards after they are added to the player stack of cards
+        console.log(newCardsToAdd);
+
+        // clear active cards list after they are added to the player stack of cards
+        const idsHashSet = new Set();
+        const idsList = newCardsToAdd.map((card) => card.id);
+        idsList.forEach((cardId) => idsHashSet.add(cardId));
         setActiveCards1((current) =>
           current.filter((card) => !idsHashSet.has(card.id))
         );
-        console.log(activeCards1);
         setActiveCards2((current) =>
           current.filter((card) => !idsHashSet.has(card.id))
         );
-        console.log(activeCards2);
-        setReadyToCompare1(false);
-        setReadyToCompare2(false);
       }
     }
-  }, [readyToCompare1, readyToCompare2, activeCards1, activeCards2]);
+  }, [activeCards1, activeCards2]);
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -124,9 +145,13 @@ export default function Home() {
               isInWar={isInWar}
               activeCardsProp={activeCards1}
               onSelectCards={handleSelectCards}
-              onChangeReadyToCompare={handleReadyToCompare}
+              // onChangeReadyToCompare={handleReadyToCompare}
               onPlayerLost={handlePlayerLost}
-              readyToCompareProp={readyToCompare1}
+              // readyToCompareProp={readyToCompare1}
+              otherActiveCardsProp={activeCards2}
+              collectCardsProp={collectCards1}
+              onClearActiveCards={handleClearActiveCards}
+              clearActiveCards={clearActiveCards}
             />
           </Item>
         </Grid>
@@ -138,9 +163,13 @@ export default function Home() {
               isInWar={isInWar}
               activeCardsProp={activeCards2}
               onSelectCards={handleSelectCards}
-              onChangeReadyToCompare={handleReadyToCompare}
+              // onChangeReadyToCompare={handleReadyToCompare}
               onPlayerLost={handlePlayerLost}
-              readyToCompareProp={readyToCompare2}
+              // readyToCompareProp={readyToCompare2}
+              otherActiveCardsProp={activeCards1}
+              collectCardsProp={collectCards2}
+              onClearActiveCards={handleClearActiveCards}
+              clearActiveCards={clearActiveCards}
             />
           </Item>
         </Grid>
