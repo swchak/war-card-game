@@ -28,28 +28,21 @@ export default function PlayerBoard2(props) {
   } = React.useContext(SharedContext);
 
   React.useEffect(() => {
-    if (!isInWar) {
-      if (activeCards2.length > 0) {
-        // card already selected, disable select button
-        setIsSelectEnabled2(false);
+    if (isInWar) {
+      if (
+        activeCards1.length === activeCards2.length &&
+        activeCards1.length > 0
+      ) {
+        // check the top cards to determine if select button has to be enabled or not
+        const topCard1 = activeCards1[activeCards1.length - 1];
+        const topCard2 = activeCards2[activeCards2.length - 1];
+        setIsSelectEnabled2(topCard1.value === topCard2.value);
       } else {
-        // card not selected, enable select button
-        setIsSelectEnabled2(true);
+        setIsSelectEnabled2(activeCards2.length < activeCards1.length);
       }
     } else {
-      // in war
-      if (activeCards2.length > 0) {
-        if (activeCards2.length > activeCards1.length) {
-          // player 1 already made a selection but not player 2
-          setIsSelectEnabled2(false);
-        } else if (activeCards2.length < activeCards1.length) {
-          //player 2 made the selection but not player 1
-          setIsSelectEnabled2(true);
-        } else {
-          // both player made selection
-          setIsSelectEnabled2(true);
-        }
-      }
+      // not in war
+      setIsSelectEnabled2(activeCards2.length !== 1);
     }
   }, [isInWar, activeCards2]);
 
