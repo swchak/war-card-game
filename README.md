@@ -2,7 +2,9 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-**Note: Reused the playing card component and some of the images from https://github.com/heruka-urgyen/react-playing-cards !**
+### Acknowledgements
+
+Reused the playing card component and one set of images from repo https://github.com/heruka-urgyen/react-playing-cards
 
 ## Available Scripts
 
