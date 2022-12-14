@@ -15,6 +15,11 @@ const Item = styled(Paper)(({ theme }) => ({
   color: theme.palette.text.secondary,
 }));
 
+/**
+ * Generic React component to display boards of player 1 or player 2
+ * @param {any} props 
+ * @returns 
+ */
 export default function PlayerBoard(props) {
   const { player } = props;
   const {

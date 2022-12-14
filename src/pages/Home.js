@@ -12,6 +12,11 @@ const Item = styled(Paper)(({ theme }) => ({
   color: theme.palette.text.secondary,
 }));
 
+/**
+ * React component that holds 2 child components playerboards, compare button(used to trigger comparing cards)
+ * and alert components when war mode in on and when a player wins
+ * @returns 
+ */
 export default function Home() {
   const {
     activeCards1,
