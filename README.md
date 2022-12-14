@@ -2,6 +2,8 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+**Note: Reused the playing card component and some of the images from https://github.com/heruka-urgyen/react-playing-cards !**
+
 ## Available Scripts
 
 In the project directory, you can run:
