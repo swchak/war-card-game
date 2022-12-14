@@ -15,62 +15,104 @@ const Item = styled(Paper)(({ theme }) => ({
   color: theme.palette.text.secondary,
 }));
 
-export default function PlayerBoard2(props) {
+export default function PlayerBoard(props) {
+  const { player } = props;
   const {
-    activeCards2,
     activeCards1,
+    activeCards2,
+    addActiveCards1,
     addActiveCards2,
+    cardStack1,
     cardStack2,
+    removeCardStack1,
     removeCardStack2,
     isInWar,
+    isSelectEnabled1,
+    setIsSelectEnabled1,
     isSelectEnabled2,
     setIsSelectEnabled2,
     setPlayer1Won,
+    setPlayer2Won,
   } = React.useContext(SharedContext);
 
   React.useEffect(() => {
+    if (player === "1") {
+      updateSelectEnabled(activeCards1, activeCards2, setIsSelectEnabled1);
+    } else {
+      updateSelectEnabled(activeCards2, activeCards1, setIsSelectEnabled2);
+    }
+  }, [isInWar, activeCards1, activeCards2]);
+
+  function updateSelectEnabled(
+    activeCards,
+    otherActiveCards,
+    setIsSelectEnabled
+  ) {
     if (isInWar) {
       if (
-        activeCards1.length === activeCards2.length &&
-        activeCards1.length > 0
+        activeCards.length === otherActiveCards.length &&
+        activeCards.length > 0
       ) {
         // check the top cards to determine if select button has to be enabled or not
-        const topCard1 = activeCards1[activeCards1.length - 1];
-        const topCard2 = activeCards2[activeCards2.length - 1];
-        setIsSelectEnabled2(topCard1.value === topCard2.value);
+        const topCard1 = activeCards[activeCards.length - 1];
+        const topCard2 = otherActiveCards[otherActiveCards.length - 1];
+        setIsSelectEnabled(topCard1.value === topCard2.value);
       } else {
-        setIsSelectEnabled2(activeCards2.length < activeCards1.length);
+        setIsSelectEnabled(activeCards.length < otherActiveCards.length);
       }
     } else {
       // not in war
-      setIsSelectEnabled2(activeCards2.length !== 1);
+      setIsSelectEnabled(activeCards.length !== 1);
     }
-  }, [isInWar, activeCards2]);
+  }
 
-  function pickCards(e) {
+  function pickCardsHelper(
+    cardStack,
+    addActiveCards,
+    removeCardStack,
+    setPlayerWon
+  ) {
     if (!isInWar) {
       // pick 1 card, face card upwards and add it to active card list and remove it from players stack of cards
-      if (cardStack2.length > 0) {
-        const topCard = cardStack2[0];
+      if (cardStack.length > 0) {
+        const topCard = cardStack[0];
         topCard.front = true;
-        addActiveCards2([{ ...topCard }]);
-        removeCardStack2([{ ...topCard }]);
+        addActiveCards([{ ...topCard }]);
+        removeCardStack([{ ...topCard }]);
       } else {
         // player ran out of cards convey to parent component that player lost
-        setPlayer1Won(true);
+        setPlayerWon(true);
       }
     } else {
       // pick 4 cards, add them to active card list with last card turned front side and remove it from players stack of cards
-      if (cardStack2.length < 4) {
+      if (cardStack.length < 4) {
         // player is out of cards announce player as lost
-        setPlayer1Won(true);
+        setPlayerWon(true);
       } else {
         // pick 4 cards from top of stack with last card front facing
-        const newCards = cardStack2.slice(0, 4);
+        const newCards = cardStack.slice(0, 4);
         newCards[3].front = true;
-        addActiveCards2([...newCards]);
-        removeCardStack2([...newCards]);
+        addActiveCards([...newCards]);
+        removeCardStack([...newCards]);
       }
+    }
+  }
+
+  function pickCards(e) {
+    if (player === "1") {
+      pickCardsHelper(
+        cardStack1,
+        addActiveCards1,
+        removeCardStack1,
+        setPlayer2Won
+      );
+    } else {
+      pickCardsHelper(
+        cardStack2,
+        addActiveCards2,
+        removeCardStack2,
+        setPlayer1Won
+      );
     }
   }
 
@@ -87,13 +129,19 @@ export default function PlayerBoard2(props) {
                 />
               </Item>
               <Item>
-                <CardCountBadge cardCount={cardStack2.length}></CardCountBadge>
+                <CardCountBadge
+                  cardCount={
+                    player === "1" ? cardStack1.length : cardStack2.length
+                  }
+                ></CardCountBadge>
               </Item>
             </Grid>
             <Grid item>
               <Button
                 variant="contained"
-                disabled={!isSelectEnabled2}
+                disabled={
+                  player === "1" ? !isSelectEnabled1 : !isSelectEnabled2
+                }
                 onClick={pickCards}
               >
                 {isInWar ? "Select 4 Cards" : "Select a Card"}
@@ -103,7 +151,9 @@ export default function PlayerBoard2(props) {
         </Grid>
         <Grid item xs={8}>
           <Item>
-            <ActiveCards activeCards={activeCards2} />
+            <ActiveCards
+              activeCards={player === "1" ? activeCards1 : activeCards2}
+            />
           </Item>
         </Grid>
       </Grid>
